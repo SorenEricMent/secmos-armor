@@ -1,0 +1,313 @@
+## <summary>Policy for mount.</summary>
+
+########################################
+## <summary>
+##	Execute mount in the mount domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+#
+interface(`mount_domtrans',`
+	gen_require(`
+		type mount_t, mount_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, mount_exec_t, mount_t)
+')
+
+########################################
+## <summary>
+##	Execute mount in the mount domain, and
+##	allow the specified role the mount domain,
+##	and use the caller's terminal.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`mount_run',`
+	gen_require(`
+		attribute_role mount_roles;
+	')
+
+	mount_domtrans($1)
+	roleattribute $2 mount_roles;
+')
+
+########################################
+## <summary>
+##	Execute mount in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_exec',`
+	gen_require(`
+		type mount_exec_t;
+	')
+
+	# cjp: this should be removed:
+	allow $1 mount_exec_t:dir list_dir_perms;
+
+	allow $1 mount_exec_t:lnk_file read_lnk_file_perms;
+	corecmd_search_bin($1)
+	can_exec($1, mount_exec_t)
+')
+
+########################################
+## <summary>
+##	Send a generic signal to mount.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_signal',`
+	gen_require(`
+		type mount_t;
+	')
+
+	allow $1 mount_t:process signal;
+')
+
+########################################
+## <summary>
+##	Use file descriptors for mount.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	The type of the process performing this action.
+##	</summary>
+## </param>
+#
+interface(`mount_use_fds',`
+	gen_require(`
+		type mount_t;
+	')
+
+	allow $1 mount_t:fd use;
+')
+
+########################################
+## <summary>
+##	Execute mount in the unconfined mount domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+#
+interface(`mount_domtrans_unconfined',`
+	gen_require(`
+		type unconfined_mount_t, mount_exec_t;
+	')
+
+	domtrans_pattern($1, mount_exec_t, unconfined_mount_t)
+')
+
+########################################
+## <summary>
+##	Execute mount in the unconfined mount domain, and
+##	allow the specified role the unconfined mount domain,
+##	and use the caller's terminal.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`mount_run_unconfined',`
+	gen_require(`
+		type unconfined_mount_t;
+	')
+
+	mount_domtrans_unconfined($1)
+	role $2 types unconfined_mount_t;
+')
+
+########################################
+## <summary>
+##	Read loopback filesystem image files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_read_loopback_files',`
+	gen_require(`
+		type mount_loopback_t;
+	')
+
+	allow $1 mount_loopback_t:file read_file_perms;
+')
+
+########################################
+## <summary>
+##	Read and write loopback filesystem image files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_rw_loopback_files',`
+	gen_require(`
+		type mount_loopback_t;
+	')
+
+	allow $1 mount_loopback_t:file rw_file_perms;
+')
+
+########################################
+## <summary>
+##	List mount runtime files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_list_runtime',`
+	gen_require(`
+		type mount_runtime_t;
+	')
+
+	allow $1 mount_runtime_t:dir list_dir_perms;
+')
+
+########################################
+## <summary>
+##	Watch mount runtime dirs.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_watch_runtime_dirs',`
+	gen_require(`
+		type mount_runtime_t;
+	')
+
+	allow $1 mount_runtime_t:dir watch;
+')
+
+########################################
+## <summary>
+##	Watch mount runtime files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_watch_runtime_files',`
+	gen_require(`
+		type mount_runtime_t;
+	')
+
+	allow $1 mount_runtime_t:file watch;
+')
+
+########################################
+## <summary>
+##	Watch reads on mount runtime files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_watch_reads_runtime_files',`
+	gen_require(`
+		type mount_runtime_t;
+	')
+
+	allow $1 mount_runtime_t:file watch_reads;
+')
+
+########################################
+## <summary>
+##     Getattr on mount_runtime_t files
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_getattr_runtime_files',`
+	gen_require(`
+		type mount_runtime_t;
+	')
+
+	allow $1 mount_runtime_t:file getattr;
+')
+
+########################################
+## <summary>
+##	Read mount runtime files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_read_runtime_files',`
+	gen_require(`
+		type mount_runtime_t;
+	')
+
+	read_files_pattern($1, mount_runtime_t, mount_runtime_t)
+')
+
+########################################
+## <summary>
+##	Read and write mount runtime files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`mount_rw_runtime_files',`
+	gen_require(`
+		type mount_runtime_t;
+	')
+
+	rw_files_pattern($1, mount_runtime_t, mount_runtime_t)
+')

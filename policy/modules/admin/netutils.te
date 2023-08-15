@@ -1,0 +1,207 @@
+policy_module(netutils)
+
+########################################
+#
+# Declarations
+#
+
+## <desc>
+## <p>
+## Control users use of ping and traceroute
+## </p>
+## </desc>
+gen_tunable(user_ping, false)
+
+type netutils_t;
+type netutils_exec_t;
+init_system_domain(netutils_t, netutils_exec_t)
+
+type netutils_tmp_t;
+files_tmp_file(netutils_tmp_t)
+
+type ping_t;
+type ping_exec_t;
+init_system_domain(ping_t, ping_exec_t)
+
+type traceroute_t;
+type traceroute_exec_t;
+init_system_domain(traceroute_t, traceroute_exec_t)
+
+########################################
+#
+# Netutils local policy
+#
+
+# Perform network administration operations and have raw access to the network.
+allow netutils_t self:capability { dac_read_search net_admin net_raw setgid setpcap setuid sys_chroot };
+dontaudit netutils_t self:capability { dac_override sys_tty_config };
+allow netutils_t self:process { getcap setcap signal_perms };
+allow netutils_t self:netlink_route_socket create_netlink_socket_perms;
+allow netutils_t self:netlink_socket create_socket_perms;
+# For tcpdump.
+allow netutils_t self:netlink_netfilter_socket create_socket_perms;
+allow netutils_t self:packet_socket { create_socket_perms map };
+allow netutils_t self:udp_socket create_socket_perms;
+allow netutils_t self:tcp_socket create_stream_socket_perms;
+allow netutils_t self:socket create_socket_perms;
+
+manage_dirs_pattern(netutils_t, netutils_tmp_t, netutils_tmp_t)
+manage_files_pattern(netutils_t, netutils_tmp_t, netutils_tmp_t)
+files_tmp_filetrans(netutils_t, netutils_tmp_t, { file dir })
+
+kernel_read_network_state(netutils_t)
+kernel_read_all_sysctls(netutils_t)
+
+corenet_all_recvfrom_netlabel(netutils_t)
+corenet_tcp_sendrecv_generic_if(netutils_t)
+corenet_raw_sendrecv_generic_if(netutils_t)
+corenet_udp_sendrecv_generic_if(netutils_t)
+corenet_tcp_sendrecv_generic_node(netutils_t)
+corenet_raw_sendrecv_generic_node(netutils_t)
+corenet_udp_sendrecv_generic_node(netutils_t)
+corenet_tcp_connect_all_ports(netutils_t)
+corenet_sendrecv_all_client_packets(netutils_t)
+corenet_udp_bind_generic_node(netutils_t)
+
+dev_read_sysfs(netutils_t)
+
+fs_getattr_xattr_fs(netutils_t)
+
+domain_use_interactive_fds(netutils_t)
+
+files_read_etc_files(netutils_t)
+# for nscd
+files_dontaudit_search_var(netutils_t)
+
+init_use_fds(netutils_t)
+init_use_script_ptys(netutils_t)
+
+auth_use_nsswitch(netutils_t)
+
+logging_send_syslog_msg(netutils_t)
+
+miscfiles_read_localization(netutils_t)
+
+userdom_use_inherited_user_terminals(netutils_t)
+
+optional_policy(`
+	nis_use_ypbind(netutils_t)
+')
+
+optional_policy(`
+	vmware_append_log(netutils_t)
+')
+
+optional_policy(`
+	xen_append_log(netutils_t)
+')
+
+########################################
+#
+# Ping local policy
+#
+
+allow ping_t self:capability { net_raw setuid };
+# When ping is installed with capabilities instead of setuid
+allow ping_t self:process { getcap setcap };
+dontaudit ping_t self:capability sys_tty_config;
+allow ping_t self:tcp_socket create_socket_perms;
+allow ping_t self:rawip_socket { create ioctl read write bind getopt setopt getattr };
+allow ping_t self:packet_socket { create ioctl read write bind getopt setopt };
+allow ping_t self:netlink_route_socket create_netlink_socket_perms;
+allow ping_t self:icmp_socket create_socket_perms;
+
+corenet_all_recvfrom_netlabel(ping_t)
+corenet_sendrecv_icmp_packets(ping_t)
+corenet_tcp_sendrecv_generic_if(ping_t)
+corenet_raw_sendrecv_generic_if(ping_t)
+corenet_raw_sendrecv_generic_node(ping_t)
+corenet_tcp_sendrecv_generic_node(ping_t)
+corenet_raw_bind_generic_node(ping_t)
+
+dev_read_urand(ping_t)
+
+domain_use_interactive_fds(ping_t)
+
+files_read_etc_files(ping_t)
+
+kernel_read_system_state(ping_t)
+
+auth_use_nsswitch(ping_t)
+
+init_dontaudit_use_fds(ping_t)
+
+logging_send_syslog_msg(ping_t)
+
+miscfiles_read_localization(ping_t)
+
+userdom_use_inherited_user_terminals(ping_t)
+
+optional_policy(`
+	munin_append_log(ping_t)
+')
+
+optional_policy(`
+        nagios_dontaudit_rw_log(ping_t)
+        nagios_dontaudit_rw_pipes(ping_t)
+')
+
+########################################
+#
+# Traceroute local policy
+#
+
+allow traceroute_t self:capability { net_admin net_raw setgid setuid };
+allow traceroute_t self:fifo_file rw_inherited_fifo_file_perms;
+allow traceroute_t self:process signal;
+allow traceroute_t self:rawip_socket create_socket_perms;
+allow traceroute_t self:packet_socket { map create_socket_perms };
+allow traceroute_t self:udp_socket create_socket_perms;
+
+can_exec(traceroute_t, traceroute_exec_t)
+
+kernel_read_system_state(traceroute_t)
+kernel_read_network_state(traceroute_t)
+kernel_search_fs_sysctls(traceroute_t)
+
+corecmd_search_bin(traceroute_t)
+
+corenet_all_recvfrom_netlabel(traceroute_t)
+corenet_tcp_sendrecv_generic_if(traceroute_t)
+corenet_udp_sendrecv_generic_if(traceroute_t)
+corenet_raw_sendrecv_generic_if(traceroute_t)
+corenet_tcp_sendrecv_generic_node(traceroute_t)
+corenet_udp_sendrecv_generic_node(traceroute_t)
+corenet_raw_sendrecv_generic_node(traceroute_t)
+corenet_udp_bind_generic_node(traceroute_t)
+corenet_tcp_bind_generic_node(traceroute_t)
+# traceroute needs this but not tracepath
+corenet_raw_bind_generic_node(traceroute_t)
+corenet_udp_bind_traceroute_port(traceroute_t)
+corenet_tcp_connect_all_ports(traceroute_t)
+corenet_sendrecv_all_client_packets(traceroute_t)
+corenet_sendrecv_traceroute_server_packets(traceroute_t)
+
+dev_read_rand(traceroute_t)
+dev_read_urand(traceroute_t)
+dev_read_sysfs(traceroute_t)
+
+domain_use_interactive_fds(traceroute_t)
+
+files_read_etc_files(traceroute_t)
+files_read_usr_files(traceroute_t)
+
+init_use_fds(traceroute_t)
+
+auth_use_nsswitch(traceroute_t)
+
+logging_send_syslog_msg(traceroute_t)
+
+miscfiles_read_generic_certs(traceroute_t)
+miscfiles_read_localization(traceroute_t)
+
+userdom_use_inherited_user_terminals(traceroute_t)
+
+# nmap searches .
+userdom_dontaudit_search_user_home_dirs(traceroute_t)
+userdom_dontaudit_search_user_home_content(traceroute_t)

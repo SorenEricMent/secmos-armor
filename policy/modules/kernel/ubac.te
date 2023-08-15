@@ -1,0 +1,18 @@
+policy_module(ubac)
+
+########################################
+#
+# Declarations
+#
+
+attribute ubac_constrained_type;
+
+attribute ubacfile;
+attribute ubacproc;
+attribute ubacsock;
+attribute ubacfd;
+attribute ubacipc;
+attribute ubacxwin;
+attribute ubacdbus;
+attribute ubackey;
+attribute ubacdb;

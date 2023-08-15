@@ -1,0 +1,80 @@
+policy_module(usbguard)
+
+########################################
+#
+# Declarations
+#
+
+## <desc>
+##	<p>
+##	Determine whether authorized users can control the daemon,
+##	which requires usbguard-daemon to be able modify its rules in
+##	/etc/usbguard.
+##	</p>
+## </desc>
+gen_tunable(usbguard_user_modify_rule_files, false)
+
+type usbguard_t;
+type usbguard_daemon_exec_t;
+init_daemon_domain(usbguard_t, usbguard_daemon_exec_t)
+
+type usbguard_conf_t;
+files_config_file(usbguard_conf_t)
+
+type usbguard_log_t;
+logging_log_file(usbguard_log_t)
+
+type usbguard_rules_t;
+files_config_file(usbguard_rules_t)
+
+type usbguard_runtime_t;
+files_runtime_file(usbguard_runtime_t)
+
+# /dev/shm
+type usbguard_tmpfs_t;
+files_tmpfs_file(usbguard_tmpfs_t)
+
+########################################
+#
+# Usbguard local policy
+#
+
+allow usbguard_t self:capability { chown dac_read_search fowner };
+allow usbguard_t self:process { getcap signal };
+allow usbguard_t self:netlink_kobject_uevent_socket create_socket_perms;
+allow usbguard_t self:unix_stream_socket rw_stream_socket_perms;
+
+files_read_etc_files(usbguard_t)
+list_dirs_pattern(usbguard_t, usbguard_conf_t, usbguard_conf_t)
+read_files_pattern(usbguard_t, usbguard_conf_t, usbguard_conf_t)
+read_files_pattern(usbguard_t, usbguard_conf_t, usbguard_rules_t)
+
+manage_dirs_pattern(usbguard_t, usbguard_runtime_t, usbguard_runtime_t)
+manage_files_pattern(usbguard_t, usbguard_runtime_t, usbguard_runtime_t)
+files_runtime_filetrans(usbguard_t, usbguard_runtime_t, { dir file })
+
+manage_dirs_pattern(usbguard_t, usbguard_tmpfs_t, usbguard_tmpfs_t)
+manage_files_pattern(usbguard_t, usbguard_tmpfs_t, usbguard_tmpfs_t)
+mmap_read_files_pattern(usbguard_t, usbguard_tmpfs_t, usbguard_tmpfs_t)
+fs_tmpfs_filetrans(usbguard_t, usbguard_tmpfs_t, { dir file })
+
+append_files_pattern(usbguard_t, usbguard_log_t, usbguard_log_t)
+create_files_pattern(usbguard_t, usbguard_log_t, usbguard_log_t)
+logging_log_filetrans(usbguard_t, usbguard_log_t, file)
+setattr_files_pattern(usbguard_t, usbguard_log_t, usbguard_log_t)
+
+dev_rw_sysfs(usbguard_t)
+
+kernel_read_kernel_sysctls(usbguard_t)
+kernel_dontaudit_getattr_proc(usbguard_t)
+
+init_search_runtime(usbguard_t)
+
+logging_send_audit_msgs(usbguard_t)
+logging_send_syslog_msg(usbguard_t)
+
+miscfiles_read_localization(usbguard_t)
+
+tunable_policy(`usbguard_user_modify_rule_files',`
+	manage_files_pattern(usbguard_t, usbguard_conf_t, usbguard_rules_t)
+')

@@ -1,0 +1,24 @@
+policy_module(application)
+
+# Attribute of user applications
+attribute application_domain_type;
+
+# Executables to be run by user
+attribute application_exec_type;
+
+optional_policy(`
+	cron_sigchld(application_domain_type)
+')
+
+optional_policy(`
+	ssh_sigchld(application_domain_type)
+	ssh_rw_stream_sockets(application_domain_type)
+
+	ifndef(`distro_redhat', `
+		ssh_rw_pipes(application_domain_type)
+	')
+')
+
+optional_policy(`
+	sudo_sigchld(application_domain_type)
+')

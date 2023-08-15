@@ -1,0 +1,216 @@
+policy_module(staff)
+
+########################################
+#
+# Declarations
+#
+
+#role staff_r;
+
+userdom_unpriv_user_template(staff)
+
+########################################
+#
+# Local policy
+#
+corenet_ib_access_unlabeled_pkeys(staff_t)
+
+optional_policy(`
+	apache_role(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+optional_policy(`
+	auditadm_role_change(staff_r)
+')
+
+optional_policy(`
+	container_user_role(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+optional_policy(`
+	dbadm_role_change(staff_r)
+')
+
+optional_policy(`
+	git_client_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+	git_role(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+optional_policy(`
+	modemmanager_dbus_chat(staff_t)
+')
+
+optional_policy(`
+	postgresql_role(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+optional_policy(`
+	secadm_role_change(staff_r)
+')
+
+optional_policy(`
+	ssh_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+optional_policy(`
+	sudo_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+optional_policy(`
+	sysadm_role_change(staff_r, staff_t)
+	userdom_dontaudit_use_user_terminals(staff_t)
+')
+
+optional_policy(`
+	syncthing_role(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+optional_policy(`
+	virt_stream_connect(staff_t)
+')
+
+optional_policy(`
+	vlock_run(staff_t, staff_r)
+')
+
+optional_policy(`
+	xscreensaver_role(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+optional_policy(`
+	xserver_role(staff, staff_t, staff_application_exec_domain, staff_r)
+')
+
+ifndef(`distro_redhat',`
+	optional_policy(`
+		auth_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		bluetooth_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		cdrecord_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		chromium_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		cron_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		dirmngr_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		evolution_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		games_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		gnome_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		gpg_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		irc_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		java_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		libmtp_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		lpd_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		mozilla_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		mplayer_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		mta_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		ooffice_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		pulseaudio_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		pyzor_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		razor_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		rssh_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		screen_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		spamassassin_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		su_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		telepathy_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		thunderbird_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		tvtime_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		uml_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		userhelper_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		vmware_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		wireshark_role(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+
+	optional_policy(`
+		wm_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
+	')
+')

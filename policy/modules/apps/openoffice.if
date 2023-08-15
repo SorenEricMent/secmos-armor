@@ -1,0 +1,149 @@
+## <summary>Openoffice suite.</summary>
+
+############################################################
+## <summary>
+##	Role access for openoffice.
+## </summary>
+## <param name="role_prefix">
+##	<summary>
+##	The prefix of the user role (e.g., user
+##	is the prefix for user_r).
+##	</summary>
+## </param>
+## <param name="user_domain">
+##	<summary>
+##	User domain for the role.
+##	</summary>
+## </param>
+## <param name="user_exec_domain">
+##	<summary>
+##	User exec domain for execute and transition access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access
+##	</summary>
+## </param>
+#
+template(`ooffice_role',`
+	gen_require(`
+		attribute_role ooffice_roles;
+		type ooffice_t, ooffice_exec_t;
+	')
+
+	roleattribute $4 ooffice_roles;
+
+	allow ooffice_t $3:unix_stream_socket connectto;
+
+	domtrans_pattern($3, ooffice_exec_t, ooffice_t)
+
+	allow $3 ooffice_t:process { ptrace signal_perms };
+	ps_process_pattern($3, ooffice_t)
+
+	optional_policy(`
+		ooffice_dbus_chat($3)
+	')
+
+	optional_policy(`
+		systemd_user_app_status($1, ooffice_t)
+	')
+')
+
+########################################
+## <summary>
+##	Run openoffice in its own domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+#
+interface(`ooffice_domtrans',`
+	gen_require(`
+		type ooffice_t, ooffice_exec_t;
+	')
+
+	domtrans_pattern($1, ooffice_exec_t, ooffice_t)
+')
+
+########################################
+## <summary>
+##	Do not audit attempts to execute
+##	files in temporary directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain to not audit.
+##	</summary>
+## </param>
+#
+interface(`ooffice_dontaudit_exec_tmp_files',`
+	gen_require(`
+		type ooffice_tmp_t;
+	')
+
+	dontaudit $1 ooffice_tmp_t:file exec_file_perms;
+')
+
+########################################
+## <summary>
+##	Read and write temporary
+##	openoffice files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`ooffice_rw_tmp_files',`
+	gen_require(`
+		type ooffice_tmp_t;
+	')
+
+	rw_files_pattern($1, ooffice_tmp_t, ooffice_tmp_t)
+')
+
+#######################################
+## <summary>
+##	Send and receive dbus messages
+##	from and to the openoffice
+##	domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`ooffice_dbus_chat',`
+	gen_require(`
+		type ooffice_t;
+		class dbus send_msg;
+	')
+
+	allow $1 ooffice_t:dbus send_msg;
+	allow ooffice_t $1:dbus send_msg;
+')
+
+########################################
+## <summary>
+##	Connect to openoffice using a
+##	unix domain stream socket.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`ooffice_stream_connect',`
+	gen_require(`
+		type ooffice_t, ooffice_tmp_t;
+	')
+
+	files_search_tmp($1)
+	stream_connect_pattern($1, ooffice_tmp_t, ooffice_tmp_t, ooffice_t)
+')

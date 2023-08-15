@@ -1,0 +1,34 @@
+policy_module(sudo)
+
+## <desc>
+##	<p>
+##	Determine whether all sudo domains
+##	can connect to TCP HTTP ports. This
+##	is needed if an additional authentication
+##	mechanism via an HTTP server is
+##	required for users to use sudo.
+##	</p>
+## </desc>
+gen_tunable(sudo_all_tcp_connect_http_port, false)
+
+## <desc>
+##	<p>
+##	Determine whether the user application exec
+##	domain attribute should be respected for sudo
+##	access. If not enabled, only user domains
+##	themselves may use sudo.
+##	</p>
+## </desc>
+gen_tunable(sudo_allow_user_exec_domains, false)
+
+########################################
+#
+# Declarations
+attribute sudodomain;
+
+type sudo_exec_t;
+application_executable_file(sudo_exec_t)
+
+tunable_policy(`sudo_all_tcp_connect_http_port',`
+	corenet_tcp_connect_http_port(sudodomain)
+')

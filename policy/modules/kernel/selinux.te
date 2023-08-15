@@ -1,0 +1,133 @@
+policy_module(selinux)
+
+########################################
+#
+# Declarations
+#
+
+## <desc>
+## <p>
+## Boolean to determine whether the system permits loading policy, and setting
+## enforcing mode.  Set this to true and you have to reboot to set it back.
+## </p>
+## </desc>
+gen_bool(secure_mode_policyload,false)
+
+## <desc>
+## <p>
+## Boolean to determine whether the system permits setting Booelan values.
+## </p>
+## </desc>
+gen_bool(secure_mode_setbool,false)
+
+attribute boolean_type;
+attribute can_load_policy;
+attribute can_setenforce;
+attribute can_setsecparam;
+attribute selinux_unconfined_type;
+
+type boolean_t, boolean_type;
+genfscon selinuxfs /booleans/ -- gen_context(system_u:object_r:boolean_t,s0)
+
+type secure_mode_policyload_t;
+selinux_labeled_boolean(secure_mode_policyload_t, secure_mode_policyload)
+
+#
+# security_t is the target type when checking
+# the permissions in the security class.  It is also
+# applied to selinuxfs inodes.
+#
+type security_t;
+files_mountpoint(security_t)
+fs_type(security_t)
+mls_trusted_object(security_t)
+sid security gen_context(system_u:object_r:security_t,mls_systemhigh)
+genfscon selinuxfs / gen_context(system_u:object_r:security_t,s0)
+genfscon securityfs / gen_context(system_u:object_r:security_t,s0)
+
+########################################
+#
+# Controlled setenforce access
+#
+
+neverallow ~{ selinux_unconfined_type can_setenforce } security_t:security setenforce;
+
+allow can_setenforce security_t:dir list_dir_perms;
+allow can_setenforce security_t:file rw_file_perms;
+
+dev_search_sysfs(can_setenforce)
+
+if(secure_mode_policyload) {
+	dontaudit can_setenforce security_t:security setenforce;
+} else {
+	allow can_setenforce security_t:security setenforce;
+}
+
+########################################
+#
+# Controlled load_policy access
+#
+
+neverallow ~{ selinux_unconfined_type can_load_policy } security_t:security load_policy;
+
+allow can_load_policy security_t:dir list_dir_perms;
+allow can_load_policy security_t:file rw_file_perms;
+
+dev_search_sysfs(can_load_policy)
+
+if(secure_mode_policyload) {
+	dontaudit can_load_policy security_t:security load_policy;
+} else {
+	allow can_load_policy security_t:security load_policy;
+}
+
+########################################
+#
+# Controlled security parameters access
+#
+
+neverallow ~{ selinux_unconfined_type can_setsecparam } security_t:security setsecparam;
+
+allow can_setsecparam security_t:dir list_dir_perms;
+allow can_setsecparam security_t:file rw_file_perms;
+allow can_setsecparam security_t:security setsecparam;
+auditallow can_setsecparam security_t:security setsecparam;
+
+dev_search_sysfs(can_setsecparam)
+
+########################################
+#
+# Unconfined access to this module
+#
+
+# use SELinuxfs
+allow selinux_unconfined_type security_t:dir list_dir_perms;
+allow selinux_unconfined_type security_t:file rw_file_perms;
+allow selinux_unconfined_type boolean_type:file read_file_perms;
+
+# Access the security API.
+allow selinux_unconfined_type security_t:security { compute_av compute_create compute_member check_context compute_relabel compute_user setsecparam setcheckreqprot read_policy validate_trans };
+
+if (secure_mode_policyload) {
+	dontaudit selinux_unconfined_type security_t:security { load_policy setenforce };
+} else {
+	allow selinux_unconfined_type security_t:security { load_policy setenforce };
+}
+
+if (secure_mode_setbool) {
+	dontaudit selinux_unconfined_type security_t:security setbool;
+} else {
+	allow selinux_unconfined_type security_t:security setbool;
+}
+
+if (secure_mode_policyload && !secure_mode_setbool) {
+	allow selinux_unconfined_type { boolean_type -secure_mode_policyload_t }:file write_file_perms;
+} else {
+	dontaudit selinux_unconfined_type { boolean_type -secure_mode_policyload_t }:file write_file_perms;
+}
+
+if (!secure_mode_policyload && !secure_mode_setbool) {
+	allow selinux_unconfined_type boolean_type:file write_file_perms;
+} else {
+	dontaudit selinux_unconfined_type boolean_type:file write_file_perms;
+}

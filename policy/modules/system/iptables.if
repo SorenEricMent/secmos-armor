@@ -1,0 +1,272 @@
+## <summary>Administration tool for IP packet filtering and NAT.</summary>
+
+########################################
+## <summary>
+##	Execute iptables in the iptables domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+#
+interface(`iptables_domtrans',`
+	gen_require(`
+		type iptables_t, iptables_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, iptables_exec_t, iptables_t)
+
+        dontaudit iptables_t $1:socket_class_set { read write };
+')
+
+########################################
+## <summary>
+##	Execute iptables in the iptables domain, and
+##	allow the specified role the iptables domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`iptables_run',`
+	gen_require(`
+		attribute_role iptables_roles;
+	')
+
+	iptables_domtrans($1)
+	roleattribute $2 iptables_roles;
+')
+
+########################################
+## <summary>
+##	Execute iptables in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`iptables_exec',`
+	gen_require(`
+		type iptables_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, iptables_exec_t)
+')
+
+########################################
+## <summary>
+##	Execute iptables init scripts in
+##	the init script domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+#
+interface(`iptables_initrc_domtrans',`
+	gen_require(`
+		type iptables_initrc_exec_t;
+	')
+
+	init_labeled_script_domtrans($1, iptables_initrc_exec_t)
+')
+
+########################################
+## <summary>
+##	Set the attributes of iptables config files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`iptables_setattr_config',`
+	gen_require(`
+		type iptables_conf_t;
+	')
+
+	files_search_etc($1)
+	allow $1 iptables_conf_t:file setattr;
+')
+
+########################################
+## <summary>
+##	Read iptables config files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`iptables_read_config',`
+	gen_require(`
+		type iptables_conf_t;
+	')
+
+	files_search_etc($1)
+	allow $1 iptables_conf_t:dir list_dir_perms;
+	read_files_pattern($1, iptables_conf_t, iptables_conf_t)
+')
+
+########################################
+## <summary>
+##	Create files in /etc with the type used for
+##	the iptables config files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`iptables_etc_filetrans_config',`
+	gen_require(`
+		type iptables_conf_t;
+	')
+
+	files_etc_filetrans($1, iptables_conf_t, file)
+')
+
+########################################
+## <summary>
+##	Manage iptables config files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`iptables_manage_config',`
+	gen_require(`
+		type iptables_conf_t;
+	')
+
+	files_search_etc($1)
+	manage_files_pattern($1, iptables_conf_t, iptables_conf_t)
+')
+
+########################################
+## <summary>
+##	dontaudit reading iptables_runtime_t  (Deprecated)
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain to not audit.
+##	</summary>
+## </param>
+#
+interface(`iptables_dontaudit_read_pids',`
+	refpolicywarn(`$0($*) has been deprecated, please use iptables_dontaudit_read_runtime_files() instead.')
+	iptables_dontaudit_read_runtime_files($1)
+')
+
+########################################
+## <summary>
+##	Do not audit reading iptables runtime files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain to not audit.
+##	</summary>
+## </param>
+#
+interface(`iptables_dontaudit_read_runtime_files',`
+	gen_require(`
+		type iptables_runtime_t;
+	')
+
+	dontaudit $1 iptables_runtime_t:file read;
+')
+
+########################################
+## <summary>
+##	Allow specified domain to start and stop iptables service
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`iptables_startstop',`
+	gen_require(`
+		type iptables_unit_t;
+		class service { start stop };
+	')
+
+	allow $1 iptables_unit_t:service { start stop };
+')
+
+########################################
+## <summary>
+##	Allow specified domain to get status of iptables service
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`iptables_status',`
+	gen_require(`
+		type iptables_unit_t;
+		class service status;
+	')
+
+	allow $1 iptables_unit_t:service status;
+')
+
+########################################
+## <summary>
+##	All of the rules required to
+##	administrate an iptables
+##	environment.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`iptables_admin',`
+	gen_require(`
+		type iptables_t, iptables_initrc_exec_t, iptables_conf_t;
+		type iptables_tmp_t, iptables_runtime_t, iptables_unit_t;
+	')
+
+	admin_process_pattern($1, iptables_t)
+
+	init_startstop_service($1, $2, iptables_t, iptables_initrc_exec_t, iptables_unit_t)
+
+	files_search_etc($1)
+	admin_pattern($1, iptables_conf_t)
+
+	files_search_tmp($1)
+	admin_pattern($1, iptables_tmp_t)
+
+	files_search_runtime($1)
+	admin_pattern($1, iptables_runtime_t)
+')
