@@ -13,3 +13,5 @@ This SELinux Policy, as its name suggested, use a security standard called seCMO
  will be discarded.**
  
  **This is a hobby project, use it with your caution.**
+
+This project is not yet finished, using it with Enforcing will cause your system to be unbootable, I'm working hard to integrate my policy modules into it.
