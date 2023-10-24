@@ -40,7 +40,7 @@ policycap open_perms;
 # packet: send recv
 # peer: recv
 #
-# policycap always_check_network;
+policycap always_check_network;
 
 # Enable separate security classes for
 # all network address families previously
@@ -105,7 +105,7 @@ policycap nnp_nosuid_transition;
 # Added checks:
 # (none)
 #
-#policycap genfs_seclabel_symlinks;
+policycap genfs_seclabel_symlinks;
 
 # Always allow FIOCLEX and FIONCLEX ioctl.
 # Requires libsepol 3.4 (estimated) and kernel 5.18 (estimated).
