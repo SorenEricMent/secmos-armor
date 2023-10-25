@@ -20,7 +20,7 @@ attribute ibpkey_type;
 attribute ibendport_type;
 # This is an optimization for { port_type -reserved_port_type }
 attribute unreserved_port_type;
-
+attribute local_ephemeral_port_type;
 attribute corenet_unconfined_type;
 
 type ppp_device_t;
@@ -68,9 +68,12 @@ sid port gen_context(system_u:object_r:port_t,s0)
 
 #
 # unreserved_port_t is the default type of INET port numbers above 1023
+# seCMOS patch: 1023-32767
 #
 type unreserved_port_t, port_type, unreserved_port_type;
 
+# seCMOS: Ephemeral port type definition
+type local_ephemeral_port_t, port_type, local_ephemeral_port_type;
 #
 # reserved_port_t is the type of INET port numbers below 1024.
 #
@@ -318,13 +321,15 @@ network_port(pop_alt, tcp,1110,s0)
 network_port(smtp_alt, tcp,1025,s0)
 
 # seCMOS Patch: labeling ephemeral ports
-network_port(local_ephemeral, tcp,32768-60999,s0, udp,32768-60999,s0)
+#network_port(local_ephemeral, tcp,32768-60999,s0, udp,32768-60999,s0)
 
+portcon tcp 32768-60999  gen_context(system_u:object_r:local_ephemeral_port_t, s0)
+portcon udp 32768-60999  gen_context(system_u:object_r:local_ephemeral_port_t, s0)
 # Defaults for reserved ports.	Earlier portcon entries take precedence;
 # these entries just cover any remaining reserved ports not otherwise declared.
 
-portcon udp 1024-65535 gen_context(system_u:object_r:unreserved_port_t, s0)
-portcon tcp 1024-65535 gen_context(system_u:object_r:unreserved_port_t, s0)
+portcon udp 1024-32767 gen_context(system_u:object_r:unreserved_port_t, s0)
+portcon tcp 1024-32767 gen_context(system_u:object_r:unreserved_port_t, s0)
 portcon tcp 512-1023 gen_context(system_u:object_r:hi_reserved_port_t, s0)
 portcon sctp 1024-65535 gen_context(system_u:object_r:unreserved_port_t, s0)
 portcon sctp 512-1023 gen_context(system_u:object_r:hi_reserved_port_t, s0)
