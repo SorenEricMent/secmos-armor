@@ -21,7 +21,82 @@ attribute ibendport_type;
 # This is an optimization for { port_type -reserved_port_type }
 attribute unreserved_port_type;
 attribute local_ephemeral_port_type;
+attribute local_ephemeral_packet_type;
 attribute corenet_unconfined_type;
+
+# seCMOS patch: paranoid packet labeling
+attribute tcpmux_packet_type;
+attribute compressnet_management_utility_packet_type;
+attribute compressnet_compression_process_packet_type;
+attribute remote_job_entry_packet_type;
+attribute echo_protocol_packet_type;
+attribute discard_protocol_packet_type;
+attribute active_users_packet_type;
+attribute daytime_protocol_packet_type;
+attribute quote_of_the_day_packet_type;
+attribute message_send_protocol_packet_type;
+attribute character_generator_protocol_packet_type;
+attribute ftp_data_transfer_packet_type;
+attribute ftp_control_packet_type;
+attribute secure_shell_packet_type;
+attribute telnet_packet_type;
+attribute simple_mail_transfer_protocol_packet_type;
+attribute nsw_user_system_fe_packet_type;
+attribute msg_icp_packet_type;
+attribute msg_authentication_packet_type;
+attribute display_support_protocol_packet_type;
+attribute time_protocol_packet_type;
+attribute route_access_protocol_packet_type;
+attribute resource_location_protocol_packet_type;
+attribute graphics_packet_type;
+attribute host_name_server_protocol_packet_type;
+attribute whois_packet_type;
+attribute mpm_flags_protocol_packet_type;
+attribute message_processing_module_recv_packet_type;
+attribute mpm_default_send_packet_type;
+attribute digital_audit_daemon_packet_type;
+attribute tacacs_login_host_protocol_packet_type;
+attribute remote_mail_checking_protocol_packet_type;
+attribute xns_time_protocol_packet_type;
+attribute dns_packet_type;
+attribute xns_clearinghouse_packet_type;
+attribute isi_graphics_language_packet_type;
+attribute xns_authentication_packet_type;
+attribute xns_mail_packet_type;
+attribute acas_packet_type;
+attribute whoispp_packet_type;
+attribute covia_packet_type;
+attribute tacacs_ds_packet_type;
+attribute sql_net_packet_type;
+attribute bootstrap_protocol_server_packet_type;
+attribute bootstrap_protocol_client_packet_type;
+attribute trivial_file_transfer_protocol_packet_type;
+attribute gopher_packet_type;
+attribute netrjs_packet_type;
+attribute distributed_external_object_store_packet_type;
+attribute vettcp_packet_type;
+attribute finger_packet_type;
+attribute http_packet_type;
+attribute xfer_packet_type;
+attribute mit_ml_dev_packet_type;
+attribute common_trace_facility_packet_type;
+attribute micro_focus_cobol_packet_type;
+attribute kerberos_packet_type;
+attribute su_mit_telnet_gateway_packet_type;
+attribute dnsix_packet_type;
+attribute mit_dover_spooler_packet_type;
+attribute network_printing_protocol_packet_type;
+attribute device_control_protocol_packet_type;
+attribute tivoli_object_dispatcher_packet_type;
+attribute supdup_packet_type;
+attribute dixie_packet_type;
+attribute swift_rvf_packet_type;
+attribute tac_news_packet_type;
+attribute metagram_packet_type;
+attribute nic_host_name_packet_type;
+
+
+
 
 type ppp_device_t;
 dev_node(ppp_device_t)
@@ -46,6 +121,81 @@ optional_policy(``
 # client_packet_t is the default type of IPv4 and IPv6 client packets.
 #
 type client_packet_t, packet_type, client_packet_type;
+
+# seCMOS Patch: ephemeral ported packets
+type local_ephemeral_packet_t, packet_type, local_ephemeral_packet_type;
+
+# seCMOS Patch: additional destination-based packet labeling.
+type tcpmux_packet_t, packet_type, tcpmux_packet_type;
+type compressnet_management_utility_packet_t, packet_type, compressnet_management_utility_packet_type;
+type compressnet_compression_process_packet_t, packet_type, compressnet_compression_process_packet_type;
+type remote_job_entry_packet_t, packet_type, remote_job_entry_packet_type;
+type echo_protocol_packet_t, packet_type, echo_protocol_packet_type;
+type discard_protocol_packet_t, packet_type, discard_protocol_packet_type;
+type active_users_packet_t, packet_type, active_users_packet_type;
+type daytime_protocol_packet_t, packet_type, daytime_protocol_packet_type;
+type quote_of_the_day_packet_t, packet_type, quote_of_the_day_packet_type;
+type message_send_protocol_packet_t, packet_type, message_send_protocol_packet_type;
+type character_generator_protocol_packet_t, packet_type, character_generator_protocol_packet_type;
+type ftp_data_transfer_packet_t, packet_type, ftp_data_transfer_packet_type;
+type ftp_control_packet_t, packet_type, ftp_control_packet_type;
+type secure_shell_packet_t, packet_type, secure_shell_packet_type;
+type telnet_packet_t, packet_type, telnet_packet_type;
+type simple_mail_transfer_protocol_packet_t, packet_type, simple_mail_transfer_protocol_packet_type;
+type nsw_user_system_fe_packet_t, packet_type, nsw_user_system_fe_packet_type;
+type msg_icp_packet_t, packet_type, msg_icp_packet_type;
+type msg_authentication_packet_t, packet_type, msg_authentication_packet_type;
+type display_support_protocol_packet_t, packet_type, display_support_protocol_packet_type;
+type time_protocol_packet_t, packet_type, time_protocol_packet_type;
+type route_access_protocol_packet_t, packet_type, route_access_protocol_packet_type;
+type resource_location_protocol_packet_t, packet_type, resource_location_protocol_packet_type;
+type graphics_packet_t, packet_type, graphics_packet_type;
+type host_name_server_protocol_packet_t, packet_type, host_name_server_protocol_packet_type;
+type whois_packet_t, packet_type, whois_packet_type;
+type mpm_flags_protocol_packet_t, packet_type, mpm_flags_protocol_packet_type;
+type message_processing_module_recv_packet_t, packet_type, message_processing_module_recv_packet_type;
+type mpm_default_send_packet_t, packet_type, mpm_default_send_packet_type;
+type digital_audit_daemon_packet_t, packet_type, digital_audit_daemon_packet_type;
+type tacacs_login_host_protocol_packet_t, packet_type, tacacs_login_host_protocol_packet_type;
+type remote_mail_checking_protocol_packet_t, packet_type, remote_mail_checking_protocol_packet_type;
+type xns_time_protocol_packet_t, packet_type, xns_time_protocol_packet_type;
+type dns_packet_t, packet_type, dns_packet_type;
+type xns_clearinghouse_packet_t, packet_type, xns_clearinghouse_packet_type;
+type isi_graphics_language_packet_t, packet_type, isi_graphics_language_packet_type;
+type xns_authentication_packet_t, packet_type, xns_authentication_packet_type;
+type xns_mail_packet_t, packet_type, xns_mail_packet_type;
+type acas_packet_t, packet_type, acas_packet_type;
+type whoispp_packet_t, packet_type, whoispp_packet_type;
+type covia_packet_t, packet_type, covia_packet_type;
+type tacacs_ds_packet_t, packet_type, tacacs_ds_packet_type;
+type sql_net_packet_t, packet_type, sql_net_packet_type;
+type bootstrap_protocol_server_packet_t, packet_type, bootstrap_protocol_server_packet_type;
+type bootstrap_protocol_client_packet_t, packet_type, bootstrap_protocol_client_packet_type;
+type trivial_file_transfer_protocol_packet_t, packet_type, trivial_file_transfer_protocol_packet_type;
+type gopher_packet_t, packet_type, gopher_packet_type;
+type netrjs_packet_t, packet_type, netrjs_packet_type;
+type distributed_external_object_store_packet_t, packet_type, distributed_external_object_store_packet_type;
+type vettcp_packet_t, packet_type, vettcp_packet_type;
+type finger_packet_t, packet_type, finger_packet_type;
+type http_packet_t, packet_type, http_packet_type;
+type xfer_packet_t, packet_type, xfer_packet_type;
+type mit_ml_dev_packet_t, packet_type, mit_ml_dev_packet_type;
+type common_trace_facility_packet_t, packet_type, common_trace_facility_packet_type;
+type micro_focus_cobol_packet_t, packet_type, micro_focus_cobol_packet_type;
+type kerberos_packet_t, packet_type, kerberos_packet_type;
+type su_mit_telnet_gateway_packet_t, packet_type, su_mit_telnet_gateway_packet_type;
+type dnsix_packet_t, packet_type, dnsix_packet_type;
+type mit_dover_spooler_packet_t, packet_type, mit_dover_spooler_packet_type;
+type network_printing_protocol_packet_t, packet_type, network_printing_protocol_packet_type;
+type device_control_protocol_packet_t, packet_type, device_control_protocol_packet_type;
+type tivoli_object_dispatcher_packet_t, packet_type, tivoli_object_dispatcher_packet_type;
+type supdup_packet_t, packet_type, supdup_packet_type;
+type dixie_packet_t, packet_type, dixie_packet_type;
+type swift_rvf_packet_t, packet_type, swift_rvf_packet_type;
+type tac_news_packet_t, packet_type, tac_news_packet_type;
+type metagram_packet_t, packet_type, metagram_packet_type;
+type nic_host_name_packet_t, packet_type, nic_host_name_packet_type;
+
 
 #
 # ICMP and ICMPv6
