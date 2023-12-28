@@ -1,0 +1,92 @@
+## <summary>Spotify musicplayer</summary>
+
+#######################################
+## <summary>
+## 	Role access for spotify
+## </summary>
+## <param name="role_prefix">
+##	<summary>
+##	The prefix of the user role (e.g., user
+##	is the prefix for user_r).
+##	</summary>
+## </param>
+## <param name="user_domain">
+##	<summary>
+##	User domain for the role.
+##	</summary>
+## </param>
+## <param name="user_exec_domain">
+##	<summary>
+##	User exec domain for execute and transition access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access
+##	</summary>
+## </param>
+#
+template(`spotify_role',`
+	gen_require(`
+		type spotify_t;
+		type spotify_exec_t;
+		attribute_role spotify_roles;
+		class dbus send_msg;
+	')
+
+	roleattribute $4 spotify_roles;
+
+	domtrans_pattern($3, spotify_exec_t, spotify_t)
+
+	# Allow ps to show chromium processes and allow the user to signal it
+	ps_process_pattern($3, spotify_t)
+	ps_process_pattern($3, spotify_exec_t)
+
+	allow $3 spotify_t:dbus send_msg;
+	allow spotify_t $3:dbus send_msg;
+
+	optional_policy(`
+		systemd_user_app_status($1, spotify_t)
+	')
+')
+
+#######################################
+## <summary>
+## 	Execute a domain transition to the spotify domain (spotify_t)
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access
+##	</summary>
+## </param>
+#
+interface(`spotify_domtrans',`
+	gen_require(`
+		type spotify_t;
+		type spotify_exec_t;
+		class dbus send_msg;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, spotify_exec_t, spotify_t)
+')
+########################################
+## <summary>
+##      Execute spotify in the caller domain.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+#
+interface(`spotify_exec',`
+        gen_require(`
+                type spotify_exec_t;
+        ')
+
+        corecmd_search_bin($1)
+        can_exec($1, spotify_exec_t)
+')
+
